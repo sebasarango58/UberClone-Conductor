@@ -1,56 +1,57 @@
-# Welcome to your Expo app 👋
+# UberClone — Versión Conductor
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil multiplataforma inspirada en Uber, desarrollada inicialmente con React Native y Expo. 
 
-## Get started
+## Incluye
+- Navegación inicial entre Inicio, Registro, Solicitud, Viaje, Cobro, Ganancias, Historial y Perfil.
+- Registro en tres pestañas y validaciones principales.
+- Estado de aprobación del conductor y simulación de aprobación para pruebas.
+- Solicitud demo con temporizador de 15 segundos.
+- Flujo demo: aceptar → conductor llega → pasajero a bordo → finalizar.
+- Función pura calculateFare para tarifa, comisión del 20 % y ganancia neta.
+- Resumen de ganancias con useMemo y temporizador con useEffect + limpieza.
+- Esqueleto de API Express con variables de entorno de ejemplo.
+- Bitácora inicial de uso de IA en docs/AI_LOG.md.
 
-1. Install dependencies
+## Requisitos
+- Node.js LTS compatible con Expo SDK del proyecto.
+- Expo Go compatible con la versión del SDK o un emulador configurado.
 
-   ```bash
-   npm install
-   ```
+## Ejecutar la app
+1. Abre una terminal dentro de la carpeta uberclone-conductor.
+2. Ejecuta npm install.
+3. Ejecuta npx expo start.
+4. Abre el proyecto con Expo Go compatible o con un emulador.
 
-2. Start the app
+Si la versión exacta de Expo no estuviera disponible en tu entorno, revisa la versión de SDK compatible con la versión de Expo Go instalada antes de actualizar dependencias.
 
-   ```bash
-   npx expo start
-   ```
+## Ejecutar el backend
+1. Abre otra terminal en backend.
+2. Copia .env.example a .env y completa solo credenciales de prueba cuando corresponda.
+3. Ejecuta npm install.
+4. Ejecuta npm start.
+5. Comprueba GET /healt.
 
-In the output, you'll find options to open the app in a
+La ruta de checkout es un marcador de posición seguro: no crea pagos todavía. No añadas llaves secretas al código móvil ni a Git.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Configuración e integraciones pendientes
+- Google Maps SDK, ubicación real y Directions API.
+- Backend de viajes, autenticación, base de datos y sincronización en tiempo real.
+- Carga de fotos de perfil, vehículo y documentos (por ejemplo, Cloudinary).
+- Notificaciones push.
+- Mercado Pago Checkout Pro en entorno de prueba, webhook y confirmación del pago en backend.
+- Persistencia de sesión/preferencias, saldo, filtros de fecha completos, paginación e historial de detalle.
+- Pruebas unitarias de validaciones y tarifas, pruebas de interfaz y verificación en dispositivo.
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Modelo de tarifa
+Valores didácticos del documento: base $3.500 COP, $1.200 COP/km, $250 COP/min, mínimo $6.000 COP; multiplicadores economy 1.0, xl 1.4, premium 1.8; comisión 20 %. Los valores no representan tarifas reales.
 
-## Get a fresh project
+## Uso de IA
+Consulta docs/AI_LOG.md. La bitácora debe completarse durante el trabajo real y exportarse a PDF para la entrega académica.
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Primera entrega: registro del conductor
+- Pestaña 1: datos personales, fotografía de perfil desde cámara o galería, fecha de nacimiento y validaciones.
+- Pestaña 2: categoría, placa colombiana, marca, modelo, año, color, capacidad y fotografía del vehículo.
+- La categoría XL exige mínimo 6 pasajeros.
+- El avance se guarda en el contexto local de la aplicación. El envío definitivo y la pestaña Documentos y pagos quedan para la siguiente entrega.
+- Para instalar el selector de fotografías con la versión compatible con el SDK de Expo del proyecto, ejecuta: npx expo install expo-image-picker.
