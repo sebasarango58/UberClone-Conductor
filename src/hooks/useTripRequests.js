@@ -1,36 +1,25 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function useEarnings(trips) {
-  return useMemo(() => {
-    const now = new Date();
-    const startDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    const startWeek = new Date(startDay);
-    startWeek.setDate(startDay.getDate() - ((startDay.getDay() + 6) % 7));
-    
-    const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+/** Cuenta atrás de 15 segundos; limpia el intervalo al cambiar o salir de la solicitud. */
+export default function useTripRequests(request, rejectRequest) {
+  const [seconds, setSeconds] = useState(15);
 
-    const summarize = start => {
-      const list = trips.filter(t => t.completedAt && new Date(t.completedAt) >= start);
-      const totalFare = list.reduce((sum, t) => sum + (t.fare || 0), 0);
-      const commission = list.reduce((sum, t) => sum + (t.commission || 0), 0);
-      const tips = list.reduce((sum, t) => sum + (t.tip || 0), 0);
-      const net = list.reduce((sum, t) => sum + (t.driverEarnings || 0), 0);
+  useEffect(() => {
+    if (!request) {
+      setSeconds(15);
+      return undefined;
+    }
 
-      return {
-        count: list.length,
-        totalFare,
-        commission,
-        tips,
-        net,
-        average: list.length ? Math.round(net / list.length) : 0,
-      };
-    };
+    const expiresAt = Date.now() + 15000;
+    setSeconds(15);
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+      setSeconds(remaining);
+      if (remaining === 0) rejectRequest();
+    }, 200);
 
-    return {
-      today: summarize(startDay),
-      week: summarize(startWeek),
-      month: summarize(startMonth),
-    };
-  }, [trips]);
+    return () => clearInterval(timer);
+  }, [request?.id, rejectRequest]);
+
+  return seconds;
 }

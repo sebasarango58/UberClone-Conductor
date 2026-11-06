@@ -20,9 +20,9 @@ export default function ProfileScreen({ navigate }) {
       </Card>
 
       <Card>
-        <Heading small>Modo de demostración</Heading>
+        <Heading small>Segunda Parte</Heading>
         <Text>
-          Para probar la app sin un backend, puedes simular la aprobación de la cuenta. En producción esto debe hacerse desde un panel autorizado.
+          Continuará...
         </Text>
         <Button title="Simular aprobación" secondary onPress={() => setDriverStatus('approved')} />
       </Card>
