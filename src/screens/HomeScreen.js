@@ -1,28 +1,25 @@
-import { useCallback } from 'react';
+// AI-assisted: see docs/AI_LOG.md #3.
+import { useCallback, useState } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
 import { Button, Card, colors, Heading, styles } from '../components/UI';
 import { useDriver } from '../context/DriverContext';
+import useDriverLocation from '../hooks/useDriverLocation';
 // 1. Importar Firebase y Firestore
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 export default function HomeScreen({ navigate }) {
-  const { 
-    driverStatus, 
-    isAvailable, 
-    setIsAvailable, 
-    createDemoRequest, 
-    request, 
-    trip 
-  } = useDriver();
+  const { driverStatus, isAvailable, setIsAvailable, createDemoRequest, request, trip, profile } = useDriver();
+  const location = useDriverLocation(isAvailable);
+  const [demoPayment, setDemoPayment] = useState('cash');
 
-  // 2. Actualizar el toggle para que guarde en Firebase en tiempo real
+  // 2. Fusionar el toggle de Kevin con la persistencia en Firebase Cloud Firestore
   const toggle = useCallback(async (value) => { 
     if (driverStatus !== 'approved') return; 
     setIsAvailable(value); // Actualiza la UI de inmediato
 
     try {
-      const driverRef = doc(db, 'drivers', '9IzGBtxzYmculTx7KqDn'); // ID real de tu Firestore
+      const driverRef = doc(db, 'drivers', '9IzGBtxzYmculTx7KqDn'); // ID real de Firestore
       await updateDoc(driverRef, {
         isAvailable: value,
         updatedAt: new Date()
@@ -36,25 +33,17 @@ export default function HomeScreen({ navigate }) {
   return (
     <ScrollView style={styles.screen}>
       <Text style={styles.badge}>UBERCLONE · CONDUCTOR</Text>
-      <Heading>Hola, conductor</Heading>
-      <Text style={styles.subtitle}>
-        Administra tu disponibilidad y tus viajes desde un solo lugar.
-      </Text>
-
+      <Heading>Hola{profile?.name ? `, ${profile.name.split(' ')[0]}` : ', conductor'}</Heading>
+      <Text style={styles.subtitle}>Administra tu disponibilidad y tus viajes desde un solo lugar.</Text>
+      
       {/* Estado de la cuenta */}
       <Card>
         <Heading small>Estado de la cuenta</Heading>
-        <Text style={{ color: driverStatus === 'approved' ? colors.green : colors.gray }}>
+        <Text style={{ color: driverStatus === 'approved' ? colors.green : colors.gray, fontWeight: '700' }}>
           {driverStatus === 'approved' ? 'Aprobado' : 'Pendiente de aprobación'}
         </Text>
-        <Text style={styles.subtitle}>
-          Para conectarte y recibir viajes, tu registro debe estar aprobado.
-        </Text>
-        <Button 
-          title="Completar registro" 
-          onPress={() => navigate('Registro')} 
-          secondary 
-        />
+        <Text style={styles.subtitle}>Solo una cuenta aprobada puede ponerse disponible y recibir solicitudes.</Text>
+        <Button title="Ver registro" secondary onPress={() => navigate('Registro')} />
       </Card>
 
       {/* Disponibilidad */}
@@ -66,7 +55,7 @@ export default function HomeScreen({ navigate }) {
               {isAvailable ? 'Disponible' : 'No disponible'}
             </Text>
             <Text style={{ color: colors.gray, marginTop: 4 }}>
-              {driverStatus === 'approved' ? 'Controla si puedes recibir solicitudes.' : 'Se activa al aprobar la cuenta.'}
+              {driverStatus === 'approved' ? 'Activa o pausa la recepción de solicitudes.' : 'Se activa cuando la cuenta esté aprobada.'}
             </Text>
           </View>
           <Switch 
@@ -77,60 +66,55 @@ export default function HomeScreen({ navigate }) {
         </View>
       </Card>
 
-      {/* Mapa y ubicación */}
+      {/* Ubicación del conductor con el hook de Kevin */}
       <Card>
-        <Heading small>Mapa y ubicación</Heading>
-        <View style={{ height: 150, backgroundColor: '#E4E7EC', borderRadius: 12, alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <Text style={{ fontSize: 30 }}>⌖</Text>
-          <Text style={{ fontWeight: '700', color: colors.navy }}>Vista previa del mapa</Text>
-          <Text style={{ textAlign: 'center', color: colors.gray, marginTop: 4 }}>
-            La ubicación GPS y Google Maps se conectarán en la siguiente fase.
+        <Heading small>Ubicación del conductor</Heading>
+        <View style={{ height: 135, backgroundColor: '#E4E7EC', borderRadius: 12, alignItems: 'center', justifyContent: 'center', padding: 15 }}>
+          <Text style={{ fontSize: 28, color: colors.blue }}>⌖</Text>
+          <Text style={{ fontWeight: '700', color: colors.navy }}>Ubicación de demostración</Text>
+          <Text style={{ color: colors.gray, textAlign: 'center', marginTop: 5 }}>
+            Lat: {location.latitude.toFixed(5)} · Lng: {location.longitude.toFixed(5)}
           </Text>
+          <Text style={{ color: colors.gray, fontSize: 11 }}>Actualiza cada 5 segundos mientras estás disponible.</Text>
         </View>
       </Card>
 
-      {/* Solicitud entrante */}
       {request ? (
         <Card>
           <Heading small>Solicitud entrante</Heading>
           <Text>{request.origin} → {request.destination}</Text>
-          <Button 
-            title="Ver solicitud" 
-            onPress={() => navigate('Solicitud')} 
-          />
+          <Button title="Ver solicitud" onPress={() => navigate('Solicitud')} />
         </Card>
       ) : null}
 
-      {/* Viaje activo */}
       {trip ? (
         <Card>
           <Heading small>Viaje activo</Heading>
           <Text>{trip.origin} → {trip.destination}</Text>
-          <Button 
-            title="Continuar viaje" 
-            onPress={() => navigate('Viaje')} 
-          />
+          <Button title="Continuar viaje" onPress={() => navigate('Viaje')} />
         </Card>
       ) : null}
 
-      {/* Botón de prueba y mensajes de estado */}
-      <Button 
-        title="Simular solicitud de prueba" 
-        secondary 
-        disabled={driverStatus !== 'approved' || !isAvailable || Boolean(request) || Boolean(trip)} 
-        onPress={() => { 
-          const created = createDemoRequest(); 
-          if (created) navigate('Solicitud'); 
-        }} 
-      />
+      {/* Tipo de pago y simulación de prueba */}
+      <Card>
+        <Heading small>Tipo de pago para la solicitud de prueba</Heading>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <Button title="Efectivo" secondary={demoPayment !== 'cash'} onPress={() => setDemoPayment('cash')} />
+          <Button title="Mercado Pago" secondary={demoPayment !== 'mercadopago'} onPress={() => setDemoPayment('mercadopago')} />
+        </View>
+        <Button 
+          title="Simular solicitud de prueba" 
+          disabled={driverStatus !== 'approved' || !isAvailable || Boolean(request) || Boolean(trip)} 
+          onPress={() => { 
+            if (createDemoRequest(demoPayment)) navigate('Solicitud'); 
+          }} 
+        />
+      </Card>
 
-      {driverStatus !== 'approved' ? (
-        <Text style={styles.subtitle}>Para probar solicitudes, primero simula la aprobación desde Perfil.</Text>
-      ) : !isAvailable ? (
-        <Text style={styles.subtitle}>Activa tu disponibilidad para recibir una solicitud de prueba.</Text>
-      ) : null}
-
-      <View style={{ height: 30 }} />
+      <Text style={[styles.subtitle, { marginTop: 10 }]}>
+        La ubicación y las solicitudes sincronizan con servicios externos y Firestore.
+      </Text>
+      <View style={{ height: 25 }} />
     </ScrollView>
   );
 }
