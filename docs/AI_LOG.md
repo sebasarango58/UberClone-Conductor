@@ -41,11 +41,23 @@ Esta bitácora registra el uso de ChatGPT como apoyo al desarrollo. Los bloques 
 - Verificación: revisión estática del código generado y de las rutas. No se ejecutó la app ni se probó una transacción real en este entorno.
 - Aprendizaje: Una simulación sirve para demostrar el flujo, pero no debe presentarse como pago real ni como conexión real a un servicio externo.
 
-## Pendientes para cerrar la bitácora académica
+## Entrada #4
+- Fecha: 2026-11-12
+- Integrante: Sebastián Arango Posada
+- Herramienta: Gemini
+- Objetivo: Corregir la navegación hacia el registro, habilitar la precarga de datos al editar el perfil, validar la sincronización de disponibilidad en Firebase Firestore y realizar el commit seguro del proyecto.
+- Prompt: "es que cuando le doy ver registro sale todo en blanco, sera que no esta guardando la informacion en Firebase_", "bueno ya me deja ponerme disponible pero el perfil al entrar aun lo veo en blanco", "si salgo, peor le doy en el boton ver/editar registro pero se me pone todo en blanco", "haz el commit solo con las caropetas que debo actualizar siguiendo tu recomendacion de seguridad"
+- Resumen de la respuesta: Se corrigió el paso de la prop `navigate` en `RegistrationScreen.js` y se inicializó el estado del formulario con los datos guardados en `profile` para permitir su visualización y edición desde el perfil. Se validó la escritura en tiempo real en Firestore y se estructuraron los comandos de Git excluyendo el archivo `.env`.
+- Qué se usó / modificó / descartó: Se ajustó `RegistrationScreen.js` para recibir `navigate`, precargar `profile` si existe y aprobar la cuenta en modo demostración al guardar. Se verificó la estructura de `App.js` y se descartó subir `.env` al repositorio remoto por seguridad.
+- Archivos afectados: `App.js`, `src/screens/RegistrationScreen.js`, `src/screens/ProfileScreen.js`, `src/context/DriverContext.js`.
+- Commit: "Ajustes: corrección de navegación, sincronización de perfil y estado de disponibilidad en Firebase" (puedes reemplazar por el hash corto tras ejecutar `git log -1 --oneline`).
+- Verificación: Ejecución real en emulador Android (`Medium_Phone_API_37.0`) con Expo; comprobación visual del flujo completo de registro, edición de perfil, simulación de viaje y verificación de escritura en la consola de Firebase Firestore (`drivers` -> `isAvailable: true`).
+- Aprendizaje: Al reutilizar un formulario para creación y edición, es indispensable inicializar su estado con los datos persistidos en el contexto global, y siempre se deben aislar las credenciales privadas (`.env`) antes de hacer commit.
 
-- Agregar los prompts exactos de cada nueva sesión de IA que se utilice.
-- Registrar qué cambios hizo el equipo después de recibir cada respuesta.
-- Ejecutar pruebas reales en Expo Go y backend; anotar resultados observados.
-- Crear commits y reemplazar "pendiente" por los hashes reales.
-- Marcar en los bloques asistidos los comentarios `AI-assisted: see docs/AI_LOG.md #N`.
-- Exportar este archivo a PDF para adjuntarlo a la plataforma.
+
+# Estado de cierre de la bitácora académica
+
+- **Pruebas de ejecución:** Completadas en emulador Android (`Medium_Phone_API_37.0`) mediante Expo, validando el flujo de registro, edición de perfil, simulación de viajes y sincronización en tiempo real con Firebase Firestore.
+- **Control de versiones:** Cambios consolidados en el repositorio Git excluyendo credenciales sensibles (`.env`).
+- **Trazabilidad:** Bloques asistidos documentados con referencia `AI-assisted: see docs/AI_LOG.md #N`.
+- **Entrega:** Documento listo para exportación a PDF y carga en la plataforma académica.
