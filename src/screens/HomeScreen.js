@@ -13,7 +13,7 @@ export default function HomeScreen({ navigate }) {
   const location = useDriverLocation(isAvailable);
   const [demoPayment, setDemoPayment] = useState('cash');
 
-  // 2. Fusionar el toggle de Kevin con la persistencia en Firebase Cloud Firestore
+  // 2. Fusionar el toggle con la persistencia en Firebase Cloud Firestore
   const toggle = useCallback(async (value) => { 
     if (driverStatus !== 'approved') return; 
     setIsAvailable(value); // Actualiza la UI de inmediato
@@ -66,7 +66,7 @@ export default function HomeScreen({ navigate }) {
         </View>
       </Card>
 
-      {/* Ubicación del conductor con el hook de Kevin */}
+      {/* Ubicación del conductor con el hook */}
       <Card>
         <Heading small>Ubicación del conductor</Heading>
         <View style={{ height: 135, backgroundColor: '#E4E7EC', borderRadius: 12, alignItems: 'center', justifyContent: 'center', padding: 15 }}>
