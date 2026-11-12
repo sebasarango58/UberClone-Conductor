@@ -2,6 +2,9 @@ import { useCallback } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
 import { Button, Card, colors, Heading, styles } from '../components/UI';
 import { useDriver } from '../context/DriverContext';
+// 1. Importar Firebase y Firestore
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
 export default function HomeScreen({ navigate }) {
   const { 
@@ -13,9 +16,21 @@ export default function HomeScreen({ navigate }) {
     trip 
   } = useDriver();
 
-  const toggle = useCallback(value => { 
+  // 2. Actualizar el toggle para que guarde en Firebase en tiempo real
+  const toggle = useCallback(async (value) => { 
     if (driverStatus !== 'approved') return; 
-    setIsAvailable(value); 
+    setIsAvailable(value); // Actualiza la UI de inmediato
+
+    try {
+      const driverRef = doc(db, 'drivers', '9IzGBtxzYmculTx7KqDn'); // ID real de tu Firestore
+      await updateDoc(driverRef, {
+        isAvailable: value,
+        updatedAt: new Date()
+      });
+      console.log("Disponibilidad sincronizada con Firebase:", value);
+    } catch (error) {
+      console.error("Error al actualizar disponibilidad en Firebase:", error);
+    }
   }, [driverStatus, setIsAvailable]);
 
   return (
