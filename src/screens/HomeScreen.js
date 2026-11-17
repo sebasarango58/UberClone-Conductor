@@ -1,6 +1,7 @@
 // AI-assisted: see docs/AI_LOG.md #3.
 import { useCallback, useState } from 'react';
 import { ScrollView, Switch, Text, View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import { Button, Card, colors, Heading, styles } from '../components/UI';
 import { useDriver } from '../context/DriverContext';
 import useDriverLocation from '../hooks/useDriverLocation';
@@ -14,8 +15,8 @@ export default function HomeScreen({ navigate }) {
   const [demoPayment, setDemoPayment] = useState('cash');
 
   // 2. Fusionar el toggle con la persistencia en Firebase Cloud Firestore
-  const toggle = useCallback(async (value) => { 
-    if (driverStatus !== 'approved') return; 
+  const toggle = useCallback(async (value) => {
+    if (driverStatus !== 'approved') return;
     setIsAvailable(value); // Actualiza la UI de inmediato
 
     try {
@@ -35,7 +36,7 @@ export default function HomeScreen({ navigate }) {
       <Text style={styles.badge}>UBERCLONE · CONDUCTOR</Text>
       <Heading>Hola{profile?.name ? `, ${profile.name.split(' ')[0]}` : ', conductor'}</Heading>
       <Text style={styles.subtitle}>Administra tu disponibilidad y tus viajes desde un solo lugar.</Text>
-      
+
       {/* Estado de la cuenta */}
       <Card>
         <Heading small>Estado de la cuenta</Heading>
@@ -58,26 +59,68 @@ export default function HomeScreen({ navigate }) {
               {driverStatus === 'approved' ? 'Activa o pausa la recepción de solicitudes.' : 'Se activa cuando la cuenta esté aprobada.'}
             </Text>
           </View>
-          <Switch 
-            value={isAvailable} 
-            onValueChange={toggle} 
-            disabled={driverStatus !== 'approved'} 
+          <Switch
+            value={isAvailable}
+            onValueChange={toggle}
+            disabled={driverStatus !== 'approved'}
           />
         </View>
       </Card>
 
       {/* Ubicación del conductor con el hook */}
+
       <Card>
         <Heading small>Ubicación del conductor</Heading>
-        <View style={{ height: 135, backgroundColor: '#E4E7EC', borderRadius: 12, alignItems: 'center', justifyContent: 'center', padding: 15 }}>
-          <Text style={{ fontSize: 28, color: colors.blue }}>⌖</Text>
-          <Text style={{ fontWeight: '700', color: colors.navy }}>Ubicación de demostración</Text>
-          <Text style={{ color: colors.gray, textAlign: 'center', marginTop: 5 }}>
-            Lat: {location.latitude.toFixed(5)} · Lng: {location.longitude.toFixed(5)}
-          </Text>
-          <Text style={{ color: colors.gray, fontSize: 11 }}>Actualiza cada 5 segundos mientras estás disponible.</Text>
-        </View>
+
+        {location.latitude !== null && location.longitude !== null ? (
+          <>
+            <MapView
+              style={{ height: 250, borderRadius: 12 }}
+              initialRegion={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              <Marker
+                coordinate={{
+                  latitude: location.latitude,
+                  longitude: location.longitude,
+                }}
+                title="Mi ubicación"
+                description="Ubicación actual del conductor"
+              />
+            </MapView>
+
+            <Text style={{ color: colors.gray, marginTop: 8 }}>
+              Lat: {location.latitude.toFixed(5)} · Lng: {location.longitude.toFixed(5)}
+            </Text>
+          </>
+        ) : (
+          <View
+            style={{
+              height: 180,
+              backgroundColor: '#E4E7EC',
+              borderRadius: 12,
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 15,
+            }}
+          >
+            <Text style={{ fontWeight: '700', color: colors.navy }}>
+              {isAvailable
+                ? 'Obteniendo ubicación GPS...'
+                : 'Activa tu disponibilidad para compartir ubicación.'}
+            </Text>
+          </View>
+        )}
+
+        <Text style={{ color: colors.gray, fontSize: 11, marginTop: 8 }}>
+          La ubicación se actualiza mientras estás disponible.
+        </Text>
       </Card>
+
 
       {request ? (
         <Card>
@@ -102,12 +145,12 @@ export default function HomeScreen({ navigate }) {
           <Button title="Efectivo" secondary={demoPayment !== 'cash'} onPress={() => setDemoPayment('cash')} />
           <Button title="Mercado Pago" secondary={demoPayment !== 'mercadopago'} onPress={() => setDemoPayment('mercadopago')} />
         </View>
-        <Button 
-          title="Simular solicitud de prueba" 
-          disabled={driverStatus !== 'approved' || !isAvailable || Boolean(request) || Boolean(trip)} 
-          onPress={() => { 
-            if (createDemoRequest(demoPayment)) navigate('Solicitud'); 
-          }} 
+        <Button
+          title="Simular solicitud de prueba"
+          disabled={driverStatus !== 'approved' || !isAvailable || Boolean(request) || Boolean(trip)}
+          onPress={() => {
+            if (createDemoRequest(demoPayment)) navigate('Solicitud');
+          }}
         />
       </Card>
 

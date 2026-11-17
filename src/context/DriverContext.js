@@ -4,14 +4,32 @@ import { calculateFare } from '../utils/calculateFare';
 
 const DriverContext = createContext(null);
 const demoRequest = {
-  id: 'demo-trip-001', origin: 'Parque de El Poblado, Medellín', destination: 'Aeropuerto Olaya Herrera, Medellín',
-  distanceKm: 8.5, durationMin: 22, category: 'economy', paymentMethod: 'cash', status: 'requested', createdAt: new Date().toISOString(),
+  id: 'demo-trip-001',
+
+  origin: 'Parque de El Poblado, Medellín',
+  originLocation: {
+    latitude: 6.2088,
+    longitude: -75.5670,
+  },
+
+  destination: 'Aeropuerto Olaya Herrera, Medellín',
+  destinationLocation: {
+    latitude: 6.2190,
+    longitude: -75.5906,
+  },
+
+  distanceKm: 8.5,
+  durationMin: 22,
+  category: 'economy',
+  paymentMethod: 'cash',
+  status: 'requested',
+  createdAt: new Date().toISOString(),
 };
 
 export function DriverProvider({ children }) {
   const [driverStatus, setDriverStatus] = useState('pending');
   const [isAvailableState, setIsAvailableState] = useState(false);
-  
+
   // Definimos esta variable para que las funciones internas (como createDemoRequest) la reconozcan
   const isAvailable = isAvailableState;
 
@@ -62,29 +80,29 @@ export function DriverProvider({ children }) {
       ? { ...item, status: 'paid', paymentStatus: 'Aprobado (simulación)', paymentId: `demo-payment-${tripId}`, paidAt: new Date().toISOString() } : item));
   }, []);
 
-  const value = useMemo(() => ({ 
-    driverStatus, 
-    setDriverStatus, 
-    isAvailable, 
-    setIsAvailable, 
-    request, 
-    setRequest, 
-    trip, 
-    setTrip, 
-    trips, 
-    profile, 
-    setProfile, 
-    registrationDraft, 
-    setRegistrationDraft, 
-    createDemoRequest, 
-    acceptRequest, 
-    rejectRequest, 
-    startToPickup, 
-    cancelTrip, 
-    passengerOnBoard, 
-    finishTrip, 
-    confirmCashPayment, 
-    simulateElectronicPayment 
+  const value = useMemo(() => ({
+    driverStatus,
+    setDriverStatus,
+    isAvailable,
+    setIsAvailable,
+    request,
+    setRequest,
+    trip,
+    setTrip,
+    trips,
+    profile,
+    setProfile,
+    registrationDraft,
+    setRegistrationDraft,
+    createDemoRequest,
+    acceptRequest,
+    rejectRequest,
+    startToPickup,
+    cancelTrip,
+    passengerOnBoard,
+    finishTrip,
+    confirmCashPayment,
+    simulateElectronicPayment
   }),
     [driverStatus, isAvailable, setIsAvailable, request, trip, trips, profile, registrationDraft, createDemoRequest, acceptRequest, rejectRequest, startToPickup, cancelTrip, passengerOnBoard, finishTrip, confirmCashPayment, simulateElectronicPayment]);
 
